@@ -1,30 +1,28 @@
-name: Deploy and Import Data
+name: Import Data to Render
 
 on:
   push:
     branches:
-      - main  # Або інша гілка для деплою
+      - main  # або інша гілка для імпорту даних
 
 jobs:
-  deploy:
+  import_data:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Set up PostgreSQL
+        uses: shivammathur/setup-postgresql@v2
         with:
-          ruby-version: '3.1.5'
+          postgresql-version: '14'
 
-      - name: Install dependencies
-        run: |
-          gem install bundler
-          bundle install
+      - name: Check psql version
+        run: psql --version  # Перевірка наявності psql
 
       - name: Import data from backup.sql
         run: |
-          psql $DATABASE_URL -f backup.sql
+          psql $DATABASE_URL -f ./data/backup.sql  # Шлях до вашого файлу backup.sql
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}  # Використовуємо секрет для з'єднання з базою даних
