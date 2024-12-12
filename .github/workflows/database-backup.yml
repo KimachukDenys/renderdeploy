@@ -1,0 +1,25 @@
+name: Restore Database Backup
+
+on:
+  push:
+    branches:
+      - main  # Виконувати при пуші на головну гілку
+
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download backup file from GitHub
+        run: |
+          wget https://github.com/your_username/your_repo/raw/main/backup.sql
+
+      - name: Restore Database to Render
+        env:
+          DATABASE_URL: ${{ secrets.postgresql://render_rails_c5i1_user:XNrfqzPCBH3YP6ZTw5j1LLN65am3EYvX@dpg-ctdkq9lumphs7395vlg0-a/render_rails_c5i1 }}
+        run: |
+          # Відновлюємо дамп бази даних
+          psql $postgresql://render_rails_c5i1_user:XNrfqzPCBH3YP6ZTw5j1LLN65am3EYvX@dpg-ctdkq9lumphs7395vlg0-a/render_rails_c5i1 -f backup.sql
