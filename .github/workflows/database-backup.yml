@@ -19,7 +19,7 @@ jobs:
 
       - name: Restore Database to Render
         env:
-          DATABASE_URL: ${{ secrets.postgresql://render_rails_c5i1_user:XNrfqzPCBH3YP6ZTw5j1LLN65am3EYvX@dpg-ctdkq9lumphs7395vlg0-a/render_rails_c5i1 }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}  # Замість вашого прямого URL, використовуйте секрет
         run: |
           # Відновлюємо дамп бази даних
-          psql $postgresql://render_rails_c5i1_user:XNrfqzPCBH3YP6ZTw5j1LLN65am3EYvX@dpg-ctdkq9lumphs7395vlg0-a/render_rails_c5i1 -f backup.sql
+          psql $DATABASE_URL -f backup.sql
