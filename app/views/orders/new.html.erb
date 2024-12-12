@@ -1,0 +1,152 @@
+<h1 class="text-center">Оформлення замовлення</h1>
+
+<div class="container mt-4">
+  <%= form_with model: @order, local: true do |form| %>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+      <% @cart_items.each do |item| %>
+        <div class="col">
+          <div class="card h-100 shadow-sm">
+            <!-- Зображення товару -->
+            <% if item[:product].image.present? %>
+              <%= image_tag(item[:product].image, alt: item[:product].name, class: "card-img-top product-img") %>
+            <% else %>
+              <div class="card-img-top text-center py-4">
+                <p><%= item[:product].name %></p>
+              </div>
+            <% end %>
+            <div class="card-body">
+              <h5 class="card-title text-center"><%= item[:product].name %></h5>
+              <p>Кількість: <%= item[:quantity] %></p>
+              <p>Ціна за одиницю: <%= number_to_currency(item[:product].price, unit: 'UAH ') %></p>
+              <p>Сума: <%= number_to_currency(item[:product].price * item[:quantity], unit: 'UAH ') %></p>
+            </div>
+          </div>
+        </div>
+        <%= hidden_field_tag "order[order_items_attributes][#{item[:product].id}][product_id]", item[:product].id %>
+        <%= hidden_field_tag "order[order_items_attributes][#{item[:product].id}][quantity]", item[:quantity] %>
+      <% end %>
+    </div>
+
+    <h3 class="mt-4">Загальна вартість: <%= number_to_currency(@total, unit: 'UAH ') %></h3>
+
+    <div class="form-group mt-3">
+      <%= form.label :name, "Ваше ім'я", class: 'form-label' %>
+      <%= form.text_field :name, class: 'form-control form-control-lg', required: true, placeholder: "Введіть ваше ім'я" %>
+    </div>
+
+    <div class="form-group mt-3">
+      <%= form.label :email, "Ваш Email", class: 'form-label' %>
+      <%= form.email_field :email, class: 'form-control form-control-lg', required: true, placeholder: "Введіть ваш email" %>
+    </div>
+
+    <div class="form-group mt-3">
+      <%= form.label :phone, "Ваш телефон", class: 'form-label' %>
+      <%= form.telephone_field :phone, class: 'form-control form-control-lg', required: true, placeholder: "Введіть ваш телефон" %>
+    </div>
+
+    <div class="form-group mt-3">
+      <%= form.label :delivery_method, "Метод доставки", class: 'form-label' %>
+      <%= form.select :delivery_method, options_for_select(["Нова Пошта", "Інший метод"]), {}, { class: "form-control form-control-lg" } %>
+    </div>
+
+    <div class="form-group mt-3">
+      <%= form.label :city, "Місто", class: 'form-label' %>
+      <%= form.text_field :city, list: "cities_list", class: "form-control form-control-lg", id: "city_input", placeholder: "Введіть ваше місто" %>
+      <datalist id="cities_list">
+        <% if @cities.present? %>
+          <% @cities.each do |city| %>
+            <option value="<%= city['Description'] %>"></option>
+          <% end %>
+        <% else %>
+          <option>Міста не знайдено</option>
+        <% end %>
+      </datalist>
+    </div>
+
+    <div class="form-group mt-3">
+      <%= form.label :warehouse_name, "Вибір відділення", class: 'form-label' %>
+      <%= form.text_field :warehouse_name, list: "warehouses_list", class: "form-control form-control-lg", id: "warehouse_input", required: true, placeholder: "Виберіть відділення" %>
+      <datalist id="warehouses_list">
+        <!-- Options will be dynamically added using JavaScript -->
+      </datalist>
+    </div>
+
+    <div class="form-group mt-3">
+      <%= form.label :payment_method, "Спосіб оплати", class: 'form-label' %>
+      <% if @payment_methods.present? %>
+        <%= form.select :payment_method, options_for_select(@payment_methods, selected: @order.payment_method), {}, { class: "form-control form-control-lg" } %>
+      <% else %>
+        <p>Методи оплати не доступні.</p>
+      <% end %>
+    </div>
+
+    <div class="d-grid gap-2 mt-4">
+      <%= form.submit "Оформити замовлення", class: 'btn btn-primary btn-block' %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    fetch('/get_cities')
+      .then(response => response.json())
+      .then(data => {
+        let cityList = document.getElementById('cities_list');
+        data.cities.forEach(city => {
+          let option = document.createElement('option');
+          option.value = city.Description;
+          cityList.appendChild(option);
+        });
+      });
+
+    document.getElementById('city_input').addEventListener('input', function() {
+      let cityName = this.value;
+      fetch(`/get_warehouses_for_city?city_name=${cityName}`)
+        .then(response => response.json())
+        .then(data => {
+          let warehouseList = document.getElementById('warehouses_list');
+          warehouseList.innerHTML = '';
+          data.offices.forEach(office => {
+            let option = document.createElement('option');
+            option.value = office.Description;
+            warehouseList.appendChild(option);
+          });
+        });
+    });
+  });
+</script>
+
+<!-- Додати стилі -->
+<style>
+  .card-img-top {
+    width: 100%; /* Картинка займає всю ширину картки */
+    height: 250px; /* Задаємо висоту */
+    object-fit: contain; /* Зберігає пропорції зображення без обрізки */
+  }
+
+  .product-img {
+    width: 100%; /* Картинка на всю ширину */
+    height: 250px; /* Висота зображення */
+    object-fit: contain; /* Не обрізаємо зображення */
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Вирівнюємо текст до верху */
+    padding: 1rem;
+  }
+
+  .card-title {
+    text-align: center;
+    font-size: 1.2rem; /* Збільшений розмір шрифта для покращеного вигляду */
+  }
+
+  .form-group {
+    margin-top: 1.5rem;
+  }
+
+  .btn-block {
+    font-size: 1.2rem;
+  }
+</style>

@@ -1,0 +1,44 @@
+<h1 class="text-center mb-4">Створити новий товар</h1>
+
+<%= form_with(model: @product, url: admin_products_path, local: true) do |form| %>
+  <% if @product.errors.any? %>
+    <div class="alert alert-danger mb-4">
+      <ul>
+        <% @product.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="card shadow-sm p-4 mb-4">
+    <div class="form-group mb-3">
+      <%= form.label :name, 'Назва товару', class: 'form-label' %>
+      <%= form.text_field :name, class: 'form-control' %>
+    </div>
+
+    <div class="form-group mb-3">
+      <%= form.label :description, 'Опис товару', class: 'form-label' %>
+      <%= form.text_area :description, class: 'form-control', rows: 4 %>
+    </div>
+
+    <div class="form-group mb-3">
+      <%= form.label :price, 'Ціна товару', class: 'form-label' %>
+      <%= form.number_field :price, class: 'form-control' %>
+    </div>
+
+    <div class="form-group mb-3">
+      <%= form.label :category_id, 'Категорія', class: 'form-label' %>
+      <%= form.collection_select :category_id, @categories, :id, :name, { prompt: 'Оберіть категорію' }, class: 'form-control' %>
+    </div>
+
+    <div class="form-group mb-4">
+      <%= form.label :image, 'Зображення товару', class: 'form-label' %>
+      <%= form.file_field :image, class: 'form-control' %>
+    </div>
+
+    <%= form.submit 'Створити товар', class: 'btn btn-primary w-100' %>
+  </div>
+
+<%= link_to 'Назад до списку', admin_products_path, class: 'btn btn-secondary w-100' %>
+<% end %>

@@ -1,0 +1,23 @@
+default: &default
+  adapter: postgresql
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  timeout: 5000
+
+development:
+  <<: *default
+  database: energy_saving_store_development
+  username: rubyadmin
+  password: postgresql
+  host: localhost
+
+test:
+  <<: *default
+  database: energy_saving_store_test
+  username: rubyadmin
+  password: postgresql
+  host: localhost
+
+production:
+  <<: *default
+  url: <%= ENV['DATABASE_URL'] %>

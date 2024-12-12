@@ -1,0 +1,16 @@
+<h1><%= @product.name %></h1>
+<p><%= @product.description %></p>
+<p><strong>Ціна:</strong> <%= number_to_currency(@product.price, unit: 'UAH') %></p>
+
+<% if @product.image.attached? %>
+  <%= image_tag @product.image, class: 'img-fluid' %>
+<% else %>
+  <p>Зображення відсутнє.</p>
+<% end %>
+
+<%= link_to 'Назад до списку', products_path, class: 'btn btn-secondary' %>
+
+<% if current_user.admin? %>
+  <%= link_to 'Редагувати', edit_product_path(@product), class: 'btn btn-warning' %>
+  <%= link_to 'Видалити', @product, method: :delete, data: { confirm: 'Ви впевнені?' }, class: 'btn btn-danger' %>
+<% end %>

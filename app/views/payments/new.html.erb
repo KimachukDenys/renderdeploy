@@ -1,0 +1,38 @@
+<h2>Оплата замовлення</h2>
+
+<%= form_with url: payment_path(@order), method: :post, local: true do |form| %>
+  <div id="card-element">
+    <!-- Елемент для введення даних картки -->
+  </div>
+
+  <div id="card-errors" role="alert"></div>
+
+  <%= form.submit "Оплатити" %>
+<% end %>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  var stripe = Stripe('<%= Rails.application.credentials.stripe[:publishable_key] %>');
+  var elements = stripe.elements();
+  var card = elements.create('card');
+  card.mount('#card-element');
+
+  var form = document.querySelector('form');
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    stripe.createToken(card).then(function(result) {
+      if (result.error) {
+        // Вивести помилку
+        var errorElement = document.getElementById('card-errors');
+        errorElement.textContent = result.error.message;
+      } else {
+        // Відправити токен на сервер
+        form.querySelector('input[name="stripeToken"]').value = result.token.id;
+        form.submit();
+      }
+    });
+  });
+</script>
+
+<%= form.hidden_field :stripeToken %>

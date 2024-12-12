@@ -1,0 +1,115 @@
+<h1><%= @category.name %></h1>
+<p><%= @category.description %></p>
+
+<h2>Товари в категорії:</h2>
+
+<!-- Форма фільтрації -->
+<%= form_with url: products_path, method: :get, local: true, class: "mb-4" do %>
+  <div class="row">
+    <div class="col-md-3">
+      <label for="category">Категорія</label>
+      <%= select_tag :category, options_for_select(@categories.map { |c| [c.name, c.id] }, selected: @category.id), include_blank: 'Виберіть категорію', class: "form-control" %>
+    </div>
+    <div class="col-md-3">
+      <label for="min_price">Мінімальна ціна</label>
+      <%= number_field_tag :min_price, params[:min_price], class: "form-control", placeholder: "Введіть мінімальну ціну" %>
+    </div>
+    <div class="col-md-3">
+      <label for="max_price">Максимальна ціна</label>
+      <%= number_field_tag :max_price, params[:max_price], class: "form-control", placeholder: "Введіть максимальну ціну" %>
+    </div>
+    <div class="col-md-3">
+      <label for="search">Пошук по назві</label>
+      <%= text_field_tag :search, params[:search], class: "form-control", placeholder: "Введіть назву товару" %>
+    </div>
+  </div>
+  <%= submit_tag "Застосувати фільтри", class: "btn btn-primary mt-3" %>
+<% end %>
+
+<% if @products.present? %> 
+  <div class="row">
+    <% @products.each do |product| %>
+      <div class="col-md-3 mb-4">
+        <div class="card">
+          <div class="card-img-top">
+            <% if product.image.attached? %>
+              <%= image_tag product.image, class: 'img-fluid' %>
+            <% else %>
+              <p>Зображення відсутнє</p>
+            <% end %>
+          </div>
+          <div class="card-body">
+            <h5 class="card-title"><%= product.name %></h5>
+            <p class="card-text"><%= product.description %></p>
+            <p class="card-text"><%= number_to_currency(product.price, unit: 'UAH') %></p>
+
+            <!-- Введення для кількості -->
+            <div class="form-group">
+              <label for="quantity_<%= product.id %>">Кількість:</label>
+              <input type="number" id="quantity_<%= product.id %>" name="quantity" value="1" min="1" class="form-control">
+            </div>
+
+            <!-- Кнопка для додавання до кошика -->
+            <%= form_with(url: carts_add_item_path, method: :post, remote: true) do |form| %>
+              <%= form.hidden_field :product_id, value: product.id %>
+              <%= form.hidden_field :quantity, value: 1, id: "hidden_quantity_#{product.id}" %>
+              <%= form.submit "Додати в кошик", class: "btn btn-primary" %>
+            <% end %>                     
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <p>Товари не знайдено.</p>
+<% end %>
+
+<script>
+  // Оновлення значення hidden_field для кількості при зміні значення в input[type="number"]
+  document.querySelectorAll('input[type="number"]').forEach(input => {
+    input.addEventListener('change', function() {
+      var productId = this.id.split('_')[1]; // Отримуємо ID продукту з input
+      var quantity = this.value; // Значення кількості з поля input
+
+      // Оновлюємо значення hidden field для відповідного продукту
+      document.querySelector(`#hidden_quantity_${productId}`).value = quantity;
+    });
+  });
+
+  document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function(event) {
+      event.preventDefault(); // Зупиняємо стандартну відправку форми
+
+      // Отримуємо значення форми
+      var formData = new FormData(form);
+
+      // Виконання AJAX-запиту
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => {
+        // Перевірка, чи відповідь має правильний формат JSON
+        if (!response.ok) {
+          throw new Error('Щось пішло не так'); // Якщо щось не так із відповіддю, викидаємо помилку
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          alert(data.message); // Вивести повідомлення про успіх
+          // Оновлення кількості товарів в кошику
+          document.querySelector('#cart_count').textContent = data.cart_count;
+        } else {
+          alert(data.message); // Вивести повідомлення про помилку
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+  });
+</script>

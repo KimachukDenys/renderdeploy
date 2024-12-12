@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "jquery": "^3.7.1",
+    "popper.js": "^1.16.1",
+    "rails_admin": "3.1.2"
+  }
+}

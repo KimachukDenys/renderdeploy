@@ -1,0 +1,32 @@
+<!-- app/views/admin/categories/edit.html.erb -->
+<h1 class="mb-4 text-center">Редагувати категорію</h1>
+
+<div class="card shadow-sm p-4">
+  <%= form_with model: @category, url: admin_category_path(@category), method: :put, local: true, class: "needs-validation" do |form| %>
+    <% if @category.errors.any? %>
+      <div class="alert alert-danger">
+        <strong>Виправте наступні помилки:</strong>
+        <ul class="mb-0">
+          <% @category.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="mb-3">
+      <%= form.label :name, "Назва", class: "form-label" %>
+      <%= form.text_field :name, class: "form-control", required: true, placeholder: "Введіть назву категорії" %>
+    </div>
+
+    <div class="mb-3">
+      <%= form.label :description, "Опис", class: "form-label" %>
+      <%= form.text_area :description, class: "form-control", required: true, rows: 5, placeholder: "Додайте опис категорії" %>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+      <%= link_to 'Назад', admin_categories_path, class: 'btn btn-outline-secondary' %>
+      <%= form.submit "Зберегти", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

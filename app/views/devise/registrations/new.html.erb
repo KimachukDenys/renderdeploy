@@ -1,0 +1,49 @@
+<h2 class="text-center">Реєстрація</h2>
+
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "form-horizontal border p-4 rounded shadow-sm" }) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+
+        <div class="form-group mb-3">
+          <%= f.label :name, "Ім'я користувача", class: "form-label" %>
+          <%= f.text_field :name, class: "form-control", autofocus: true, placeholder: "Введіть ваше ім'я" %>
+        </div>
+
+        <div class="form-group mb-3">
+          <%= f.label :email, "Email", class: "form-label" %>
+          <%= f.email_field :email, class: "form-control", autofocus: true, autocomplete: "email", placeholder: "Введіть ваш email" %>
+        </div>
+
+        <div class="form-group mb-3">
+          <%= f.label :phone, "Телефон", class: "form-label" %>
+          <%= f.text_field :phone, class: "form-control", placeholder: "Введіть ваш телефон" %>
+        </div>
+
+        <div class="form-group mb-3">
+          <%= f.label :password, "Пароль", class: "form-label" %>
+          <% if @minimum_password_length %>
+            <small class="form-text text-muted">
+              (Мінімум <%= @minimum_password_length %> символів)
+            </small>
+          <% end %>
+          <%= f.password_field :password, class: "form-control", autocomplete: "new-password", placeholder: "Введіть ваш пароль" %>
+        </div>
+
+        <div class="form-group mb-3">
+          <%= f.label :password_confirmation, "Підтвердження пароля", class: "form-label" %>
+          <%= f.password_field :password_confirmation, class: "form-control", autocomplete: "new-password", placeholder: "Повторіть ваш пароль" %>
+        </div>
+
+        <div class="form-group d-grid gap-2">
+          <%= f.submit "Зареєструватися", class: "btn btn-primary btn-block" %>
+        </div>
+      <% end %>
+
+      <div class="text-center mt-3">
+        <%= render "devise/shared/links" %>
+      </div>
+    </div>
+  </div>
+</div>

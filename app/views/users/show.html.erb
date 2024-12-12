@@ -1,0 +1,37 @@
+<!-- app/views/users/show.html.erb -->
+
+<h1>Профіль користувача</h1>
+<p>Ім'я: <%= @user.name %></p>
+<p>Email: <%= @user.email %></p>
+<p>Номер телефона: <%= @user.phone %></p>
+
+
+<h2>Ваші замовлення</h2>
+
+<% if @orders.present? %>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Дата</th>
+        <th>Сума замовлення</th>
+        <th>Дії</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @orders.each do |order| %>
+        <tr>
+          <td><%= order.id %></td>
+          <td><%= order.created_at.strftime("%d/%m/%Y") %></td>
+          <td><%= number_to_currency(order.total, unit: 'UAH ') %></td> <!-- Сума замовлення -->
+          <td class="d-flex gap-2"> <!-- Використовуємо d-flex для горизонтального розташування кнопок -->
+            <%= link_to 'Переглянути замовлення', order_path(order), class: 'btn btn-info' %>
+            <%= button_to 'Видалити замовлення', user_order_path(@user, order), method: :delete, data: { confirm: 'Ви впевнені, що хочете видалити це замовлення?' }, class: 'btn btn-danger' %> <!-- Видалити -->
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>У вас немає замовлень.</p>
+<% end %>

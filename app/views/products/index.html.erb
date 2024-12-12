@@ -1,0 +1,122 @@
+<h1>Список товарів</h1>
+
+<!-- Форма фільтрації -->
+<%= form_with url: products_path, method: :get, local: true, class: "mb-4" do %>
+  <div class="row">
+    <div class="col-md-3">
+      <label for="category">Категорія</label>
+      <%= select_tag :category, options_for_select(@categories, selected: params[:category]), include_blank: 'Виберіть категорію', class: "form-control" %>
+    </div>
+    <div class="col-md-3">
+      <label for="min_price">Мінімальна ціна</label>
+      <%= number_field_tag :min_price, params[:min_price], class: "form-control", placeholder: "Введіть мінімальну ціну" %>
+    </div>
+    <div class="col-md-3">
+      <label for="max_price">Максимальна ціна</label>
+      <%= number_field_tag :max_price, params[:max_price], class: "form-control", placeholder: "Введіть максимальну ціну" %>
+    </div>
+    <div class="col-md-3">
+      <label for="search">Пошук по назві</label>
+      <%= text_field_tag :search, params[:search], class: "form-control", placeholder: "Введіть назву товару" %>
+    </div>
+  </div>
+  <%= submit_tag "Застосувати фільтри", class: "btn btn-primary mt-3" %>
+<% end %>
+
+<% if @products.present? %>
+  <div class="row">
+    <% @products.each do |product| %>
+      <div class="col-md-4 mb-4"> <!-- 3 стовпці -->
+        <div class="card h-100">
+          <%= link_to product_path(product) do %>
+            <div class="card-img-top">
+              <% if product.image.attached? %>
+                <%= image_tag product.image, class: 'img-fluid product-img' %>
+              <% else %>
+                <p>Зображення відсутнє</p>
+              <% end %>
+            </div>
+          <% end %>
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title"><%= product.name %></h5>
+            <p class="card-text"><%= product.description %></p>
+            <p class="card-text"><%= number_to_currency(product.price, unit: 'UAH ') %></p>
+
+            <!-- Кнопка для додавання до кошика -->
+            <%= form_with(url: carts_add_item_path, method: :post, remote: true, class: 'add-to-cart-form') do |form| %>
+              <%= form.hidden_field :product_id, value: product.id %>
+              <label for="quantity_<%= product.id %>">Кількість:</label>
+              <input type="number" id="quantity_<%= product.id %>" name="quantity" value="1" min="1" class="form-control">
+              <%= form.submit "Додати в кошик", class: "btn btn-primary mt-2" %>
+            <% end %>                                                                       
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Пагінація -->
+  <% if @products.total_pages > 1 %> 
+    <div class="pagination">
+      <ul class="pagination justify-content-center">
+        <li class="page-item <%= 'disabled' if @products.current_page == 1 %>">
+          <%= link_to '«', products_path(page: @products.prev_page), class: 'page-link' if @products.prev_page %>
+        </li>
+  
+        <% (1..@products.total_pages).each do |page_number| %>
+          <li class="page-item <%= 'active' if @products.current_page == page_number %>">
+            <%= link_to page_number, products_path(page: page_number), class: 'page-link' %>
+          </li>
+        <% end %>
+  
+        <li class="page-item <%= 'disabled' if @products.current_page == @products.total_pages %>">
+          <%= link_to '»', products_path(page: @products.next_page), class: 'page-link' if @products.next_page %>
+        </li>
+      </ul>
+    </div>
+  <% else %>
+    <p>Товари не знайдено.</p>
+  <% end %>  
+<% else %>
+  <p>Товари не знайдено.</p>
+<% end %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Додаємо обробник для всіх форм "Додати в кошик"
+    document.querySelectorAll('.add-to-cart-form').forEach(form => {
+      form.addEventListener('ajax:success', (event) => {
+        const [data] = event.detail; // Отримуємо дані з відповіді сервера
+        if (data.success) {
+          alert(data.message); // Повідомлення про успішне додавання
+          document.querySelector('#cart_count').textContent = data.cart_count; // Оновлюємо кількість товарів у кошику
+        } else {
+          alert('Помилка: ' + data.message); // Повідомлення про помилку
+        }
+      });
+
+      form.addEventListener('ajax:error', (event) => {
+        alert('Сталася помилка під час додавання товару до кошика.');
+      });
+    });
+  });
+</script>
+
+<!-- Додати стилі -->
+<style>
+  .product-img {
+    width: 100%; /* Заповнює всю ширину картки */
+    height: 300px; /* Встановлено висоту зображення */
+    object-fit: contain; /* Зберігає пропорції і не обрізає зображення */
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Вирівнює текст та кнопки на різних рівнях */
+  }
+
+  .pagination {
+    margin-top: 20px;
+  }
+</style>

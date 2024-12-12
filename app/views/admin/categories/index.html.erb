@@ -1,0 +1,37 @@
+<!-- app/views/admin/categories/index.html.erb -->
+<h1 class="text-center mb-4">Категорії</h1>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <p class="mb-0">Усього категорій: <strong><%= @categories.count %></strong></p>
+  <%= link_to 'Додати категорію', new_admin_category_path, class: 'btn btn-primary' %>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-striped table-hover mb-0">
+      <thead class="table-dark">
+        <tr>
+          <th scope="col" class="text-center" style="width: 5%;">#</th>
+          <th scope="col" style="width: 25%;">Назва</th>
+          <th scope="col" style="width: 50%;">Опис</th>
+          <th scope="col" class="text-center" style="width: 20%;">Дії</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @categories.each_with_index do |category, index| %>
+          <tr>
+            <td class="text-center align-middle"><%= index + 1 %></td>
+            <td class="align-middle"><%= category.name %></td>
+            <td class="align-middle"><%= truncate(category.description, length: 50) %></td>
+            <td class="text-center align-middle">
+              <div class="d-inline-flex">
+                <%= link_to 'Редагувати', edit_admin_category_path(category), class: 'btn btn-warning btn-sm me-2' %>
+                <%= button_to 'Видалити', admin_category_path(category), method: :delete, data: { confirm: 'Ви впевнені, що хочете видалити цю категорію?' }, class: 'btn btn-danger btn-sm' %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>
