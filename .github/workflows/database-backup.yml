@@ -23,11 +23,6 @@ jobs:
           gem install bundler
           bundle install
 
-      - name: Deploy to Render
-        run: |
-          # Ваш скрипт деплою на Render
-          ./deploy.sh
-
       - name: Import data from backup.sql
         run: |
           psql $DATABASE_URL -f backup.sql
