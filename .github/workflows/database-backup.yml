@@ -15,7 +15,7 @@ jobs:
 
       - name: Download backup file from GitHub
         run: |
-          wget https://github.com/your_username/your_repo/raw/main/backup.sql
+          wget https://github.com/KimachukDenys/renderdeploy/raw/main/backup.sql
 
       - name: Restore Database to Render
         env:
