@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: energy-saving-store
+    env: ruby
+    plan: free  # Змініть на відповідний план, якщо потрібно
+    buildCommand: bundle install && yarn install && rails assets:precompile
+    startCommand: rails server -b 0.0.0.0 -p $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: energy-saving-store-db
+          property: connectionString
+      - key: RAILS_ENV
+        value: production
+    autoDeploy: true  # Автоматичний деплой при оновленні в Git
+
+  - type: database
+    name: energy-saving-store-db
+    plan: free  # Змініть на відповідний план, якщо потрібно
+    engine: postgres
+    version: 15
+    initialScript: ./db/seeds.sql  # Якщо у вас є SQL-скрипт для ініціалізації даних
