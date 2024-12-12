@@ -1,26 +1,35 @@
-name: Restore Database Backup
+name: Deploy and Import Data
 
 on:
   push:
     branches:
-      - main  # Виконувати при пуші на головну гілку
+      - main  # Або інша гілка для деплою
 
 jobs:
-  restore:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Download backup file from GitHub
-        run: |
-          wget https://github.com/KimachukDenys/renderdeploy/raw/main/backup.sql
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1.5'
 
-      - name: Restore Database to Render
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}  # Замість вашого прямого URL, використовуйте секрет
+      - name: Install dependencies
         run: |
-          # Відновлюємо дамп бази даних
+          gem install bundler
+          bundle install
+
+      - name: Deploy to Render
+        run: |
+          # Ваш скрипт деплою на Render
+          ./deploy.sh
+
+      - name: Import data from backup.sql
+        run: |
           psql $DATABASE_URL -f backup.sql
-
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
